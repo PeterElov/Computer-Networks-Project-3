@@ -164,11 +164,11 @@ void *scanfAndsend(void *a) {
     int index = (int)(intptr_t)a;
     while (1) {
         memset(buff, MSG_NOSIGNAL, 128);
-        echo();
+        noecho();
         printw("You are Client %d, write something to the chat room: ", index + 1);
         refresh();
         getstr(buff);
-        noecho();
+        //noecho();
         send(sSocket, buff, strlen(buff), MSG_NOSIGNAL);
     }
 }
