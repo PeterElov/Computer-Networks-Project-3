@@ -166,8 +166,9 @@ void *scanfAndsend(void *a) {
         memset(buff, MSG_NOSIGNAL, 128);
         noecho();
         printw("You are Client %d, write something to the chat room: ", index + 1);
-        refresh();
+        //refresh();
         getstr(buff);
+	refresh();
         //noecho();
         send(sSocket, buff, strlen(buff), MSG_NOSIGNAL);
     }
