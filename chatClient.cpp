@@ -169,6 +169,6 @@ void *scanfAndsend(void *a) {
         refresh();
         getstr(buff);
         noecho();
-        send(sSocket, buff, strlen(buff), 0);
+        send(sSocket, buff, strlen(buff), MSG_NOSIGNAL);
     }
 }
