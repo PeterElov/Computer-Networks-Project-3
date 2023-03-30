@@ -163,8 +163,10 @@ void *scanfAndsend(void *a) {
     char buff[128];
     int index = (int)(intptr_t)a;
     while (1) {
-        memset(buff, 0, 128);
-        echo();
+        
+	memset(buff, 0, 128);
+        //echo();
+	rewind(stdin);
         printf("You are Client %d, write something to the chat room: ", index + 1);
         //refresh();
 	//ile ((buff = getchar())! = '\n')
@@ -172,8 +174,8 @@ void *scanfAndsend(void *a) {
 	//refresh();
         //noecho();
 	scanf("%[^\n]", buff);
-        char b = getchar();
+        //char b = getchar();
         send(sSocket, buff, strlen(buff), MSG_NOSIGNAL);
-	refresh();
+	//refresh();
     }
 }
