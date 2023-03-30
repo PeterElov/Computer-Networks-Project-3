@@ -172,7 +172,7 @@ void *scanfAndsend(void *a) {
 	//refresh();
         //noecho();
 	scanf("%[^\n]", buff);
-        char a = getchar();
+        char b = getchar();
         send(sSocket, buff, strlen(buff), MSG_NOSIGNAL);
 	refresh()
     }
