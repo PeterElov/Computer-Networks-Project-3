@@ -168,15 +168,15 @@ void *scanfAndsend(void *a) {
         //echo();
 	//rewind(stdin);
         printf("You are Client %d, write something to the chat room: \n", index + 1);
-	char c = getchar();
+	//char c = getchar();
         //refresh();
 	//ile ((buff = getchar())! = '\n')
         //tstr(buff);
 	//refresh();
         //noecho();
 	scanf("%[^\n]", buff);
-        char b = getchar();
-        send(sSocket, buff, strlen(buff), MSG_NOSIGNAL);
+        char a = getchar();
+        send(sSocket, buff, strlen(buff), NULL);
 	//refresh();
     }
 }
