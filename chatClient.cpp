@@ -110,26 +110,19 @@
 #include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ncurses.h>
 
 int sSocket;
 
 void *scanfAndsend(void *a);
 
 int main() {
-    
-    timeout(0);
-    initscr();
-    noecho();
-    scrollok(stdscr, TRUE);
-
     sSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (sSocket == -1) {
         perror("Failed to create socket");
         return -2;
     }
-    printw("Created Socket Successfully!\n");
+    printf("Created Socket Successfully!\n");
 
     struct sockaddr_in addr = { 0 };
     addr.sin_family = AF_INET;
@@ -141,7 +134,7 @@ int main() {
         perror("Failed to connect to server");
         return -2;
     }
-    printw("Connected to Server Successfully \n");
+    printf("Connected to Server Successfully \n");
 
     pthread_t thread_id;
     pthread_create(&thread_id, NULL, scanfAndsend, NULL);
@@ -152,12 +145,10 @@ int main() {
         r = recv(sSocket, buff, 127, 0);
         if (r > 0) {
             buff[r] = 0;
-            printw("%s\n", buff);
-            refresh();
+            printf("%s\n", buff);
         }
     }
 
-    endwin();
     return 0;
 }
 
@@ -165,26 +156,9 @@ void *scanfAndsend(void *a) {
     char buff[128];
     int index = (int)(intptr_t)a;
     while (1) {
-        
-	memset(buff, 0, 128);
-        //echo();
-	//rewind(stdin);
-        printw("You are Client %d, write something to the chat room: \n", index + 1);
-	//char c = getchar();
-        refresh();
-	int i = 0;
-	int ch;
-	while ((ch = getch() != '\n' && i<127){
-		buff[i++] = ch;
-	}
-	 buff[i] = 0;    
-	//ile ((buff = getchar())! = '\n')
-        //tstr(buff);
-	//refresh();
-        //noecho();
-	//scanf("%[^\n]", buff);
-        //char b = getchar();
+        memset(buff, 0, 128);
+        printf("You are Client %d, write something to the chat room: \n", index + 1);
+        fgets(buff, 128, stdin);
         send(sSocket, buff, strlen(buff), MSG_NOSIGNAL);
-	//refresh();
     }
 }
