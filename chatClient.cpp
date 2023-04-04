@@ -127,7 +127,7 @@ int main() {
         perror("Failed to create socket");
         return -2;
     }
-    printf("Created Socket Successfully!\n");
+    printw("Created Socket Successfully!\n");
 
     struct sockaddr_in addr = { 0 };
     addr.sin_family = AF_INET;
@@ -139,7 +139,7 @@ int main() {
         perror("Failed to connect to server");
         return -2;
     }
-    printf("Connected to Server Successfully \n");
+    printw("Connected to Server Successfully \n");
 
     pthread_t thread_id;
     pthread_create(&thread_id, NULL, scanfAndsend, NULL);
