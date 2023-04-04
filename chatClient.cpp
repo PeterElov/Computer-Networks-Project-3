@@ -117,8 +117,10 @@ int sSocket;
 void *scanfAndsend(void *a);
 
 int main() {
-    initscr();
+    
     timeout(0);
+    initscr();
+    noecho();
     scrollok(stdscr, TRUE);
 
     sSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
