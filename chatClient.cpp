@@ -101,7 +101,6 @@
 
 
 // }
-
 #include <stdio.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -109,22 +108,23 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
-#include <stdlib.h>
+
+#define MAX_MESSAGE_LENGTH 127
 
 int sSocket;
 
-void *scanfAndsend(void *a);
+void *readServer(void *arg);
+void *sendToServer(void *arg);
 
 int main() {
     sSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
     if (sSocket == -1) {
         perror("Failed to create socket");
-        return -2;
+        return -1;
     }
-    printf("Created Socket Successfully!\n");
+    printf("Socket created successfully\n");
 
-    struct sockaddr_in addr = { 0 };
+    struct sockaddr_in addr = {0};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr("10.35.70.17");
     addr.sin_port = htons(33333);
@@ -132,33 +132,50 @@ int main() {
     int r = connect(sSocket, (struct sockaddr *)&addr, sizeof addr);
     if (r == -1) {
         perror("Failed to connect to server");
-        return -2;
+        return -1;
     }
-    printf("Connected to Server Successfully \n");
+    printf("Connected to server successfully\n");
 
-    pthread_t thread_id;
-    pthread_create(&thread_id, NULL, scanfAndsend, NULL);
+    pthread_t readThread, sendThread;
+    pthread_create(&readThread, NULL, readServer, NULL);
+    pthread_create(&sendThread, NULL, sendToServer, NULL);
 
-    char buff[128];
-    int n = 0;
-    while (1) {
-        r = recv(sSocket, buff, 127, 0);
-        if (r > 0) {
-            buff[r] = 0;
-            printf("%s\n", buff);
-        }
-    }
+    pthread_join(readThread, NULL);
+    pthread_join(sendThread, NULL);
 
+    close(sSocket);
     return 0;
 }
 
-void *scanfAndsend(void *a) {
-    char buff[128];
-    int index = (int)(intptr_t)a;
+void *readServer(void *arg) {
+    char message[MAX_MESSAGE_LENGTH+1];
     while (1) {
-        memset(buff, 0, 128);
-        printf("You are Client %d, write something to the chat room: \n", index + 1);
-        fgets(buff, 128, stdin);
-        send(sSocket, buff, strlen(buff), MSG_NOSIGNAL);
+        int r = recv(sSocket, message, MAX_MESSAGE_LENGTH, 0);
+        if (r > 0) {
+            message[r] = '\0';
+            printf("%s\n", message);
+        } else {
+            perror("Failed to receive message from server");
+            break;
+        }
     }
+    return NULL;
+}
+
+void *sendToServer(void *arg) {
+    char message[MAX_MESSAGE_LENGTH+1];
+    while (1) {
+        fgets(message, MAX_MESSAGE_LENGTH+1, stdin);
+        int len = strlen(message);
+        if (len > 0) {
+            if (message[len-1] == '\n') {
+                message[len-1] = '\0';
+            }
+            if (send(sSocket, message, strlen(message), MSG_NOSIGNAL) == -1) {
+                perror("Failed to send message to server");
+                break;
+            }
+        }
+    }
+    return NULL;
 }
