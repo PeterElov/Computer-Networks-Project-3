@@ -172,7 +172,7 @@ void *scanfAndsend(void *a) {
         refresh();
 	int i = 0;
 	int ch;
-	while ((ch = getch() ! = '\n' && i<127){
+	while ((ch = getch() != '\n' && i<127){
 		buff[i++] = ch;
 	}
 	 buff[i] = 0;    
