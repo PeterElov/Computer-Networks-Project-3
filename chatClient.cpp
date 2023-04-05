@@ -127,7 +127,7 @@ int main() {
     struct sockaddr_in addr = {0};
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = inet_addr("10.35.70.17");
-    addr.sin_port = htons(35555);
+    addr.sin_port = htons(33333);
 
     int r = connect(sSocket, (struct sockaddr *)&addr, sizeof addr);
     if (r == -1) {
