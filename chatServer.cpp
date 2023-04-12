@@ -10,8 +10,18 @@
 
 #define MaxClientNum 100
 //define the maxium client number to 100
+
+#define MaxThreadNum 10
+//define the max thread number to 10
+
+
 int count;
 int cSocket[MaxClientNum];
+pthread_t threads[MaxThreadNum];
+int thread_count = 0;
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void* communicate(void* a);
 //prototype the communicate function
 
@@ -51,28 +61,30 @@ int main() {
         return -2;
     }
     printf("Successfully listen to socket\n");
-
-    for (int i = 0; i < MaxClientNum; i++) {
-    //for loop to keep detecting the clients connected to the server
-    //i is the number of the client which has connected to the server
-        cSocket[i] = accept(sSocket, NULL, NULL);
-        //if all the protoocol are the same, then accept
-        if (cSocket[i] == -1) {
+    
+    while (1) {
+        int c = accept(sSocket, NULL, NULL);
+        if (c == -1) {
             perror("Server crushed");
             close(sSocket);
             return -3;
         }
-        printf("Client number %d has successfully connected to server\n", i + 1);
-        count++;
+        printf("Client number %d has successfully connected to server\n", count + 1);
+        cSocket[count++] = c;
 
-        pthread_t thread_id;
-        //define a thread to communicate with the clients
-        pthread_create(&thread_id, NULL, communicate, (void*)(intptr_t)i);
-        //create a thread
+        pthread_mutex_lock(&mutex);
+        if (thread_count < MaxThreadNum) {
+            pthread_create(&threads[thread_count++], NULL, communicate, (void*)(intptr_t)(count-1));
+        } else {
+            pthread_mutex_unlock(&mutex);
+            communicate((void*)(intptr_t)(count-1));
+        }
+        pthread_mutex_unlock(&mutex);
     }
-    while (1);
+
     return 0;
 }
+
 
 void* communicate(void* a) {
     int index = (int)(intptr_t)a;
@@ -90,10 +102,14 @@ void* communicate(void* a) {
             memset(temp, 0, 128);
             //clear temp for each loop
             sprintf(temp, "Client %d: %s", index + 1, buff);
+            
+            pthread_mutex_lock(&mutex);
             for (int i = 0; i < count; i++) {
-            send(cSocket[i], temp, strlen(temp), 0);
+                send(cSocket[i], temp, strlen(temp), 0);
             //send them to all the clients
             }
+            pthread_mutex_unlock(&mutex);
+
         }
     }
     return 0;
